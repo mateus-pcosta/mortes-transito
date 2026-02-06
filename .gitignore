@@ -1,0 +1,29 @@
+# Credenciais e segredos
+credentials/
+.env
+config_sheets.txt
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Build / Executavel
+build/
+dist/
+*.spec
+*.exe
+
+# IDE
+.vscode/
+.idea/
+
+# Sistema
+*.log
+Thumbs.db
+desktop.ini
+
+# Arquivos temporarios
+*.tmp
+*.bak
