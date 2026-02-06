@@ -73,15 +73,6 @@ class MainWindow(QMainWindow):
             )
 
     def sincronizar_postgresql(self, dados):
-        """
-        Sincroniza os dados com o banco PostgreSQL da SSP.
-
-        Args:
-            dados: Dicionario com os dados do formulario
-
-        Returns:
-            Mensagem de status da sincronizacao
-        """
         try:
             db_handler = DatabaseHandler()
             sucesso, mensagem = db_handler.inserir_registro(dados)
@@ -135,7 +126,6 @@ class MainWindow(QMainWindow):
             self.close()
 
     def closeEvent(self, event):
-        """Confirma antes de fechar a janela."""
         if self.stack.currentIndex() > 0:  # Não está na tela inicial
             resposta = QMessageBox.question(
                 self,
