@@ -1,6 +1,6 @@
 # Sistema de Cadastro de Mortes no Transito
 
-Aplicacao desktop em Python com PyQt6 para cadastrar mortes no transito, com suporte para **Excel Local** ou **Google Sheets** em tempo real.
+Aplicacao desktop em Python com PyQt6 para cadastrar mortes no transito, com suporte para **Excel Local** ou **Google Sheets** em tempo real, e sincronizacao com **MySQL**.
 
 ## Caracteristicas Principais
 
@@ -8,11 +8,11 @@ Aplicacao desktop em Python com PyQt6 para cadastrar mortes no transito, com sup
 - **Dois modos de operacao**:
   - **Excel Local**: Trabalhe com arquivos .xlsx offline
   - **Google Sheets**: Atualizacoes em tempo real na nuvem
-- Formulario completo com 33 campos organizados em 7 abas
+- Formulario com 29 campos ativos organizados em 7 abas
 - Calculos automaticos de idade, dia da semana e mes
 - Validacao de dados em tempo real
 - Insercao ordenada automatica por Data do Fato
-- **Sincronizacao com PostgreSQL** da SSP
+- **Sincronizacao com MySQL**
 
 ## Modos de Operacao
 
@@ -27,21 +27,20 @@ Aplicacao desktop em Python com PyQt6 para cadastrar mortes no transito, com sup
 - Compartilhamento facilitado com equipe
 - Sem necessidade de download
 
-**[Guia de Configuracao do Google Sheets](GOOGLE_SHEETS_CONFIG.md)**
-
 ## Requisitos
 
 - Python 3.10 ou superior
+- MySQL 8.0 ou superior
 - Windows, macOS ou Linux
 - Conexao com internet (apenas para modo Google Sheets)
-- VPN Tailscale conectada (para sincronizacao com PostgreSQL)
 
 ## Instalacao
 
-### 1. Clone ou baixe o projeto
+### 1. Clone o projeto
 
 ```bash
-cd SSP-autom.relat
+git clone https://github.com/mateus-pcosta/mortes-transito.git
+cd mortes-transito
 ```
 
 ### 2. Instale as dependencias
@@ -55,7 +54,26 @@ pip install -r requirements.txt
 - pandas (manipulacao de dados)
 - openpyxl (Excel local)
 - gspread + google-auth (Google Sheets)
-- psycopg2-binary (PostgreSQL)
+- mysql-connector-python (MySQL)
+- python-dotenv (variaveis de ambiente)
+
+### 3. Configure o banco de dados MySQL
+
+```bash
+mysql -u root -p < setup_database.sql
+```
+
+Isso cria o banco `mortes_transito` com todas as tabelas e dados iniciais.
+
+### 4. Configure o arquivo .env
+
+Copie o exemplo e preencha com suas credenciais:
+
+```bash
+cp .env.example .env
+```
+
+Edite o `.env` com seus dados de acesso ao MySQL.
 
 ## Como Usar
 
@@ -85,7 +103,7 @@ Na tela inicial, escolha entre:
 
 O formulario esta organizado em 7 abas:
 
-- **Boletim** - Informacoes do Boletim de Ocorrencia
+- **Boletim** - Tipo de Acidente (demais campos desativados)
 - **Laudo** - Informacoes do Laudo IML
 - **Vitima** - Dados da Vitima
 - **Localizacao** - Localizacao do Acidente
@@ -93,26 +111,26 @@ O formulario esta organizado em 7 abas:
 - **Veiculos** - Veiculos e Local da Morte
 - **Territorial** - Classificacao Territorial
 
-## Configuracao do Google Sheets
+## Banco de Dados MySQL
 
-Para usar o modo Google Sheets, voce precisa:
+### Estrutura
 
-1. Criar um projeto no Google Cloud Console
-2. Ativar Google Sheets API e Google Drive API
-3. Criar uma Service Account
-4. Baixar arquivo de credenciais JSON
-5. Compartilhar planilha com o email da Service Account
+O banco `mortes_transito` possui 5 tabelas:
 
-**Guia completo**: [GOOGLE_SHEETS_CONFIG.md](GOOGLE_SHEETS_CONFIG.md)
+- **ocorrencias** - Dados do fato (data, hora, local, tipo de acidente)
+- **vitimas** - Dados da vitima (nome, idade, CPF, laudo)
+- **tipos_acidente** - Lookup de tipos de acidente (10 opcoes)
+- **tipos_veiculo** - Lookup de tipos de veiculo (18 opcoes)
+- **municipios** - Lookup de municipios
 
-## Sincronizacao com PostgreSQL
+### Diagrama simplificado
 
-Ao salvar um registro, os dados sao enviados automaticamente para o banco PostgreSQL da SSP:
-
-- **Banco**:
-- **Schema**: transito
-- **Tabelas**: 
-- **Requisito**: VPN Tailscale conectada
+```
+ocorrencias (1) ----< (N) vitimas
+     |                        |
+     |-> tipos_acidente       |-> tipos_veiculo (vitima)
+     |-> municipios           |-> tipos_veiculo (envolvido)
+```
 
 ## Campos Calculados Automaticamente
 
@@ -122,14 +140,12 @@ Ao salvar um registro, os dados sao enviados automaticamente para o banco Postgr
 
 ## Campos Obrigatorios
 
-1. Natureza da Ocorrencia
-2. N do BO
-3. Tipo de Acidente
-4. Data do Obito
-5. Vitima (Nome Completo)
-6. Sexo
-7. Municipio do Fato
-8. Data do Fato
+1. Tipo de Acidente
+2. Data do Obito
+3. Vitima (Nome Completo)
+4. Sexo
+5. Municipio do Fato
+6. Data do Fato
 
 ## Estrutura do Projeto
 
@@ -138,108 +154,43 @@ projeto/
 |
 |-- main.py                       # Inicializacao
 |-- requirements.txt              # Dependencias
+|-- setup_database.sql            # Script de criacao do MySQL
 |-- README.md                     # Este arquivo
-|-- config_sheets.txt             # Configuracoes Google Sheets
-|
-|-- credentials/                  # Credenciais Google
-|   |-- mortes-transito-credentials.json
+|-- .env.example                  # Template de variaveis de ambiente
+|-- .gitignore                    # Arquivos ignorados pelo git
 |
 |-- interface/                    # Interfaces graficas
 |   |-- tela_selecao_modo.py     # Escolha Excel/Sheets
-|   |-- tela_cadastro.py         # Formulario
+|   |-- tela_cadastro.py         # Formulario (7 abas)
 |   |-- tela_confirmacao.py      # Confirmacao
 |
 |-- utils/                        # Utilitarios
     |-- excel_handler.py          # Handler Excel
     |-- sheets_handler.py         # Handler Google Sheets
-    |-- database_handler.py       # Handler PostgreSQL
+    |-- database_handler.py       # Handler MySQL
     |-- validacoes.py             # Validacoes
-    |-- calculos.py               # Calculos
+    |-- calculos.py               # Calculos automaticos
     |-- dados_estaticos.py        # Dados pre-definidos
 ```
 
-## Comparacao: Excel vs Google Sheets
-
-| Caracteristica | Excel Local | Google Sheets |
-|----------------|-------------|---------------|
-| **Atualizacoes** | Manual | Instantanea |
-| **Acesso** | Apenas no PC | Qualquer lugar |
-| **Internet** | Nao necessaria | Necessaria |
-| **Compartilhamento** | Enviar arquivo | Link compartilhado |
-| **Backup** | Manual | Automatico |
-| **Setup** | Simples | Requer configuracao |
-
 ## Seguranca
 
-### Google Sheets
-- **NUNCA** compartilhe seu arquivo `credentials.json`
-- Mantenha as credenciais em local seguro
-- Revogue acesso de Service Accounts antigas
-- Use permissoes minimas necessarias
+- Credenciais armazenadas em `.env` (nunca commitado)
+- Arquivo `credentials/` protegido pelo `.gitignore`
+- Senhas e chaves privadas nunca expostas no repositorio
 
-### PostgreSQL
-- Credenciais armazenadas de forma segura
-- Conexao via VPN Tailscale (criptografada)
-- Usuario com permissoes controladas
+## Configuracao do Google Sheets
 
-### Excel Local
-- Faca backup regular dos arquivos
-- Armazene em local seguro
+Para usar o modo Google Sheets:
 
-## Troubleshooting
-
-### Modo Excel
-
-**Erro ao abrir arquivo**
-- Verifique se nao esta aberto em outro programa
-- Confirme que tem 33 colunas
-
-**Erro ao salvar**
-- Feche o arquivo se estiver aberto
-- Verifique permissoes de escrita
-
-### Modo Google Sheets
-
-**Erro de autenticacao**
-- Verifique caminho do credentials.json
-- Confirme que APIs estao ativadas
-
-**Planilha nao encontrada**
-- Verifique URL da planilha
-- Confirme permissoes de compartilhamento
-
-**API Error 403**
-- Service Account nao tem permissao
-- Compartilhe planilha com email da Service Account
-
-### PostgreSQL
-
-**Erro de conexao**
-- Verifique se o Tailscale VPN esta conectado
-- Confirme que o host ssp-geo01 esta acessivel
-
-**Erro de autenticacao**
-- Verifique usuario e senha do banco
-
-## Novidades da Versao 3.0
-
-- Sincronizacao automatica com PostgreSQL (SSP)
-- Suporte a multiplas abas por ano (2024, 2025, 2026)
-- Deteccao automatica do ano pela Data do Fato
-- Mapeamento inteligente de campos para banco relacional
-- Lookups automaticos (municipio, tipo acidente, veiculo, natureza)
-
-## Versoes Anteriores
-
-### Versao 2.0
-- Suporte ao Google Sheets
-- Tela de selecao de modo
-- Atualizacao em tempo real
-- Interface modernizada
+1. Criar um projeto no Google Cloud Console
+2. Ativar Google Sheets API e Google Drive API
+3. Criar uma Service Account
+4. Baixar arquivo de credenciais JSON para `credentials/`
+5. Compartilhar planilha com o email da Service Account
 
 ---
 
-**Versao**: 3.0
+**Versao**: 3.1 (Publica)
 **Ultima atualizacao**: Fevereiro 2026
-**Desenvolvido com**: Python 3, PyQt6, pandas, openpyxl, gspread, psycopg2
-**Desenvolvido para**: SSP-PI - Secretaria de Seguranca Publica do Piaui
+**Desenvolvido com**: Python 3, PyQt6, pandas, openpyxl, gspread, MySQL

@@ -125,14 +125,13 @@ class TelaConfirmacao(QWidget):
 
         # Campos principais para mostrar no preview
         campos_preview = [
-            ('Vítima', self.dados_inseridos.get('Vítima', '')),
+            ('Vitima', self.dados_inseridos.get('Vítima', '')),
             ('Data do Fato', self.formatar_data(self.dados_inseridos.get('Data do Fato'))),
             ('Hora do Fato', self.dados_inseridos.get('Hora do fato', '')),
-            ('Município', self.dados_inseridos.get('Município do Fato', '')),
+            ('Municipio', self.dados_inseridos.get('Município do Fato', '')),
             ('Tipo de Acidente', self.dados_inseridos.get('Tipo de Acidente', '')),
             ('Sexo', self.dados_inseridos.get('Sexo', '')),
             ('Idade', str(self.dados_inseridos.get('Idade', '')) if self.dados_inseridos.get('Idade') else 'N/A'),
-            ('Nº do BO', self.dados_inseridos.get('Nº do BO', '')),
         ]
 
         tabela.setRowCount(len(campos_preview))

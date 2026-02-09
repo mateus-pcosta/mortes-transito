@@ -116,28 +116,25 @@ class SheetsHandler:
             # Cria DataFrame
             self.df = pd.DataFrame(dados[1:], columns=dados[0])
 
-            # Valida colunas (aceita 32 ou 33 colunas)
+            # Valida colunas (aceita 28 ou 29 colunas)
             num_colunas = len(self.df.columns)
-            if num_colunas < 32 or num_colunas > 33:
-                return False, f"Planilha possui {num_colunas} colunas. Esperado: 32 ou 33 colunas."
+            if num_colunas < 28 or num_colunas > 29:
+                return False, f"Planilha possui {num_colunas} colunas. Esperado: 28 ou 29 colunas."
 
-            # Verifica estrutura das colunas (flexível)
+            # Verifica estrutura das colunas (flexivel)
             colunas_planilha = [col.strip() for col in self.df.columns]
             colunas_esperadas = [col.strip() for col in COLUNAS_EXCEL]
 
-            # Se a planilha tem 32 colunas, verifica qual está faltando e adiciona
-            if num_colunas == 32:
-                # Encontra as colunas que faltam
+            # Se a planilha tem 28 colunas, verifica qual esta faltando e adiciona
+            if num_colunas == 28:
                 colunas_faltantes = []
                 for col_esperada in colunas_esperadas:
                     if col_esperada not in colunas_planilha:
                         colunas_faltantes.append(col_esperada)
 
-                # Adiciona colunas faltantes ao DataFrame
                 for col_faltante in colunas_faltantes:
                     self.df[col_faltante] = ''
 
-                # Reordena as colunas para corresponder à ordem esperada
                 self.df = self.df[colunas_esperadas]
 
             self.dados_carregados = True

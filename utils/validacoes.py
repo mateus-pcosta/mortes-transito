@@ -182,8 +182,6 @@ def campos_obrigatorios_preenchidos(dados: dict) -> Tuple[bool, list]:
         Tupla (todos_preenchidos, lista_campos_vazios)
     """
     campos_obrigatorios = [
-        'Natureza da Ocorrência',
-        'Nº do BO',
         'Tipo de Acidente',
         'Data do Óbito',
         'Vítima',

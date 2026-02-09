@@ -1,9 +1,5 @@
 # Nomes das colunas do Excel (exatamente como aparecem na planilha)
 COLUNAS_EXCEL = [
-    "Nº de\nBOS",
-    "Nº de\nVítimas",
-    "Natureza da Ocorrência",
-    "Nº do BO",
     "Tipo de Acidente",
     "Nº Laudo IML",
     "Natureza do Laudo",
@@ -199,7 +195,7 @@ COLORS = {
 
 # Mensagens de erro
 ERROS = {
-    'arquivo_invalido': "Arquivo Excel inválido. Verifique se contém as 33 colunas necessárias.",
+    'arquivo_invalido': "Arquivo Excel inválido. Verifique se contém as 29 colunas necessárias.",
     'data_futura': "Data não pode ser futura.",
     'cpf_invalido': "CPF inválido. Verifique os dígitos.",
     'campo_obrigatorio': "Este campo é obrigatório.",
@@ -213,8 +209,8 @@ ERROS = {
 
 def carregar_dados_da_planilha(caminho_excel):
     """
-    Carrega dados únicos da planilha existente para popular os comboboxes.
-    Retorna dicionário com listas de valores únicos.
+    Carrega dados unicos da planilha existente para popular os comboboxes.
+    Retorna dicionario com listas de valores unicos.
     """
     import pandas as pd
 
@@ -223,7 +219,6 @@ def carregar_dados_da_planilha(caminho_excel):
 
         dados = {
             'municipios': sorted(df['Município do Fato'].dropna().unique().tolist()),
-            'natureza_ocorrencia': sorted(df['Natureza da Ocorrência'].dropna().unique().tolist()),
             'locais_morte': sorted(df['Local da Morte'].dropna().unique().tolist()),
             'territorios': sorted(df['Território de\nDesenvolvimento'].dropna().unique().tolist())
         }
@@ -233,7 +228,6 @@ def carregar_dados_da_planilha(caminho_excel):
         print(f"Erro ao carregar dados da planilha: {e}")
         return {
             'municipios': [],
-            'natureza_ocorrencia': [],
             'locais_morte': [],
             'territorios': []
         }

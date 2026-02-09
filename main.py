@@ -54,8 +54,8 @@ class MainWindow(QMainWindow):
         sucesso, mensagem, posicao = self.excel_handler.inserir_registro(dados)
 
         if sucesso:
-            # Tenta sincronizar com PostgreSQL
-            msg_db = self.sincronizar_postgresql(dados)
+            # Tenta sincronizar com MySQL
+            msg_db = self.sincronizar_mysql(dados)
 
             # Mostra tela de confirmação
             tela_confirmacao = TelaConfirmacao(self.excel_handler, dados, posicao, msg_db)
@@ -72,19 +72,19 @@ class MainWindow(QMainWindow):
                 mensagem
             )
 
-    def sincronizar_postgresql(self, dados):
+    def sincronizar_mysql(self, dados):
         try:
             db_handler = DatabaseHandler()
             sucesso, mensagem = db_handler.inserir_registro(dados)
             db_handler.desconectar()
 
             if sucesso:
-                return "PostgreSQL: Sincronizado"
+                return "MySQL: Sincronizado"
             else:
-                return f"PostgreSQL: Erro - {mensagem}"
+                return f"MySQL: Erro - {mensagem}"
 
         except Exception as e:
-            return f"PostgreSQL: Erro - {str(e)}"
+            return f"MySQL: Erro - {str(e)}"
 
     def cadastrar_outro(self):
         # Remove telas antigas do stack (mantém só a primeira)
