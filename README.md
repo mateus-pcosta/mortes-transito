@@ -77,7 +77,7 @@ Edite o `.env` com seus dados de acesso ao MySQL.
 
 ## Planilha Excel
 
-O projeto inclui o arquivo `planilha_mortes_transito.xlsx` com as 29 colunas ja configuradas, pronto para uso.
+O projeto inclui o arquivo `assets/planilha_mortes_transito.xlsx` com as 29 colunas ja configuradas, pronto para uso.
 
 O sistema tambem aceita planilhas com 33 colunas (formato antigo). Nesse caso, as 4 colunas extras (N de BOS, N de Vitimas, N Laudo IML, N do BO) sao removidas automaticamente ao carregar.
 
@@ -155,7 +155,7 @@ O formulario esta organizado em 7 abas:
 
 O banco `mortes_transito` possui 6 tabelas com chaves primarias e estrangeiras:
 
-![Diagrama do Banco de Dados](diagrama-mortes-no-transito.png)
+![Diagrama do Banco de Dados](assets/diagrama-mortes-no-transito.png)
 
 ## Campos Calculados Automaticamente
 
@@ -181,10 +181,13 @@ projeto/
 |-- main.py                       # Inicializacao
 |-- requirements.txt              # Dependencias
 |-- setup_database.sql            # Script de criacao do MySQL
-|-- planilha_mortes_transito.xlsx # Planilha modelo (29 colunas)
 |-- README.md                     # Este arquivo
 |-- .env.example                  # Template de variaveis de ambiente
 |-- .gitignore                    # Arquivos ignorados pelo git
+|
+|-- assets/                       # Recursos do projeto
+|   |-- planilha_mortes_transito.xlsx  # Planilha modelo (29 colunas)
+|   |-- diagrama-mortes-no-transito.png # Diagrama do banco de dados
 |
 |-- interface/                    # Interfaces graficas
 |   |-- tela_selecao_modo.py     # Escolha Excel/Sheets
