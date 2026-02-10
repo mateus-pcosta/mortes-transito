@@ -1,8 +1,3 @@
-"""
-Handler para conexao e sincronizacao com MySQL.
-Sincroniza dados do formulario com o banco de dados.
-"""
-
 import mysql.connector
 from typing import Tuple, Optional
 from datetime import datetime, date, time
@@ -13,7 +8,6 @@ load_dotenv()
 
 
 class DatabaseHandler:
-    """Handler para sincronizar dados com MySQL."""
 
     def __init__(self, config: dict = None):
         self.config = config or self._carregar_config()
@@ -21,12 +15,12 @@ class DatabaseHandler:
         self.cursor = None
 
         # Cache para lookups
+        self._cache_natureza = {}
         self._cache_tipo_acidente = {}
         self._cache_tipo_veiculo = {}
         self._cache_municipio = {}
 
     def _carregar_config(self) -> dict:
-        """Carrega configuracoes de variaveis de ambiente (.env)."""
         config = {
             'host': os.getenv('DB_HOST'),
             'port': int(os.getenv('DB_PORT', 3306)),
@@ -45,7 +39,6 @@ class DatabaseHandler:
         return config
 
     def conectar(self) -> Tuple[bool, str]:
-        """Conecta ao MySQL."""
         try:
             self.connection = mysql.connector.connect(
                 host=self.config['host'],
@@ -67,8 +60,12 @@ class DatabaseHandler:
             return False, f"Erro ao conectar: {str(e)}"
 
     def _carregar_caches(self):
-        """Carrega tabelas de lookup em cache para performance."""
         try:
+            # Cache natureza_ocorrencia
+            self.cursor.execute("SELECT id, descricao FROM naturezas_ocorrencia")
+            for id_val, descricao in self.cursor.fetchall():
+                self._cache_natureza[descricao.strip().lower()] = id_val
+
             # Cache tipo_acidente
             self.cursor.execute("SELECT id, descricao FROM tipos_acidente")
             for id_val, descricao in self.cursor.fetchall():
@@ -89,15 +86,7 @@ class DatabaseHandler:
             print(f"Aviso: Erro ao carregar caches: {e}")
 
     def inserir_registro(self, dados: dict) -> Tuple[bool, str]:
-        """
-        Insere registro no MySQL (ocorrencias + vitimas).
 
-        Args:
-            dados: Dicionario com os campos do formulario
-
-        Returns:
-            Tupla (sucesso, mensagem)
-        """
         if not self.connection:
             sucesso, msg = self.conectar()
             if not sucesso:
@@ -130,7 +119,6 @@ class DatabaseHandler:
             return False, f"Erro ao inserir: {str(e)}"
 
     def _inserir_ocorrencia(self, dados: dict) -> Optional[int]:
-        """Insere dados na tabela ocorrencias. Retorna id gerado."""
         data_fato = self._converter_data(self._get_valor(dados, 'Data do Fato'))
         hora_fato = self._converter_hora(self._get_valor(dados, 'Hora do fato'))
         dia_semana = self._get_valor(dados, 'Dia da Semana')
@@ -141,6 +129,7 @@ class DatabaseHandler:
         longitude = self._converter_float(self._get_valor(dados, 'Long'))
 
         # Lookups
+        id_natureza = self._lookup_natureza(self._get_valor(dados, 'Natureza da Ocorrência'))
         id_tipo_acidente = self._lookup_tipo_acidente(self._get_valor(dados, 'Tipo de Acidente'))
         id_municipio = self._lookup_municipio(self._get_valor(dados, 'Município do Fato'))
 
@@ -148,23 +137,22 @@ class DatabaseHandler:
             INSERT INTO ocorrencias (
                 data_fato, hora_fato, dia_semana, mes_referencia,
                 id_municipio, logradouro, subtipo_local,
-                id_tipo_acidente, latitude, longitude
+                id_natureza, id_tipo_acidente, latitude, longitude
             ) VALUES (
-                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
             )
         """
 
         valores = (
             data_fato, hora_fato, dia_semana, mes_referencia,
             id_municipio, logradouro, subtipo_local,
-            id_tipo_acidente, latitude, longitude
+            id_natureza, id_tipo_acidente, latitude, longitude
         )
 
         self.cursor.execute(query, valores)
         return self.cursor.lastrowid
 
     def _inserir_vitima(self, dados: dict, id_ocorrencia: int) -> bool:
-        """Insere dados na tabela vitimas."""
         nome = self._get_valor(dados, 'Vítima')
         sexo = self._get_valor(dados, 'Sexo')
         data_nascimento = self._converter_data(self._get_valor(dados, 'Data de\nNascimento'))
@@ -177,7 +165,6 @@ class DatabaseHandler:
         uso_capacete = self._get_valor(dados, 'Estava usando\nCapacete')
         data_obito = self._converter_data(self._get_valor(dados, 'Data do Óbito'))
         local_morte = self._get_valor(dados, 'Local da Morte')
-        num_laudo_iml = self._get_valor(dados, 'Nº Laudo IML')
         natureza_laudo = self._get_valor(dados, 'Natureza do Laudo')
 
         # Lookups de veiculos
@@ -189,9 +176,9 @@ class DatabaseHandler:
                 id_ocorrencia, nome, sexo, data_nascimento, idade,
                 cpf, filiacao, possui_cnh, e_condutor, exame_alcoolemia,
                 uso_capacete, id_veiculo_vitima, id_veiculo_envolvido,
-                data_obito, local_morte, num_laudo_iml, natureza_laudo
+                data_obito, local_morte, natureza_laudo
             ) VALUES (
-                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
             )
         """
 
@@ -199,13 +186,18 @@ class DatabaseHandler:
             id_ocorrencia, nome, sexo, data_nascimento, idade,
             cpf, filiacao, possui_cnh, e_condutor, exame_alcoolemia,
             uso_capacete, id_veiculo_vitima, id_veiculo_envolvido,
-            data_obito, local_morte, num_laudo_iml, natureza_laudo
+            data_obito, local_morte, natureza_laudo
         )
 
         self.cursor.execute(query, valores)
         return True
 
-    # ==================== METODOS DE LOOKUP ====================
+    # METODOS DE LOOKUP
+
+    def _lookup_natureza(self, valor: str) -> Optional[int]:
+        if not valor:
+            return None
+        return self._cache_natureza.get(valor.strip().lower())
 
     def _lookup_tipo_acidente(self, valor: str) -> Optional[int]:
         if not valor:
@@ -222,7 +214,7 @@ class DatabaseHandler:
             return None
         return self._cache_municipio.get(valor.strip().lower())
 
-    # ==================== METODOS DE CONVERSAO ====================
+    # METODOS DE CONVERSAO
 
     def _get_valor(self, dados: dict, chave: str) -> Optional[str]:
         valor = dados.get(chave, '')
@@ -283,7 +275,7 @@ class DatabaseHandler:
             return False
         return None
 
-    # ==================== METODOS AUXILIARES ====================
+    # METODOS AUXILIARES
 
     def testar_conexao(self) -> Tuple[bool, str]:
         try:

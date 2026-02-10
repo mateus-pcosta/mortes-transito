@@ -10,8 +10,6 @@ import platform
 
 
 class TelaConfirmacao(QWidget):
-    """Tela de confirmação e download."""
-
     # Signals
     cadastrar_outro = pyqtSignal()  # Para voltar ao formulário
     fechar_aplicacao = pyqtSignal()  # Para fechar a aplicação
@@ -26,7 +24,6 @@ class TelaConfirmacao(QWidget):
         self.init_ui()
 
     def init_ui(self):
-        """Inicializa a interface da tela."""
         layout = QVBoxLayout()
         layout.setContentsMargins(30, 30, 30, 30)
         layout.setSpacing(20)
@@ -116,7 +113,6 @@ class TelaConfirmacao(QWidget):
         self.setStyleSheet(f"background-color: {COLORS['background']};")
 
     def criar_preview_tabela(self, layout):
-        """Cria tabela com preview dos dados principais."""
         tabela = QTableWidget()
         tabela.setColumnCount(2)
         tabela.setHorizontalHeaderLabels(["Campo", "Valor"])
@@ -148,7 +144,6 @@ class TelaConfirmacao(QWidget):
         layout.addWidget(tabela)
 
     def criar_botoes_acao(self, layout):
-        """Cria os botões de ação."""
         botoes_layout = QHBoxLayout()
 
         # Botão Cadastrar Outro
@@ -217,7 +212,6 @@ class TelaConfirmacao(QWidget):
         layout.addLayout(botoes_layout)
 
     def formatar_data(self, data):
-        """Formata data para exibição."""
         if data:
             try:
                 return data.strftime("%d/%m/%Y")
@@ -226,7 +220,6 @@ class TelaConfirmacao(QWidget):
         return ""
 
     def baixar_planilha(self):
-        """Abre dialog para salvar a planilha atualizada."""
         # Sugere nome de arquivo
         nome_original = os.path.basename(self.excel_handler.caminho_arquivo)
         nome_base, extensao = os.path.splitext(nome_original)
@@ -273,7 +266,6 @@ class TelaConfirmacao(QWidget):
                 QMessageBox.critical(self, "Erro ao Salvar", mensagem)
 
     def abrir_pasta(self, caminho_arquivo):
-        """Abre a pasta contendo o arquivo."""
         pasta = os.path.dirname(caminho_arquivo)
 
         try:
@@ -288,7 +280,6 @@ class TelaConfirmacao(QWidget):
             QMessageBox.warning(self, "Erro", f"Não foi possível abrir a pasta: {e}")
 
     def abrir_arquivo(self, caminho_arquivo):
-        """Abre o arquivo Excel."""
         try:
             sistema = platform.system()
             if sistema == "Windows":
@@ -301,9 +292,7 @@ class TelaConfirmacao(QWidget):
             QMessageBox.warning(self, "Erro", f"Não foi possível abrir o arquivo: {e}")
 
     def cadastrar_outro_registro(self):
-        """Emite signal para cadastrar outro registro."""
         self.cadastrar_outro.emit()
 
     def fechar(self):
-        """Emite signal para fechar a aplicação."""
         self.fechar_aplicacao.emit()

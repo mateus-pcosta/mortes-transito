@@ -9,44 +9,43 @@ from .calculos import parse_data_excel
 
 
 class ExcelHandler:
-    """Classe para manipular a planilha Excel de mortes no trânsito."""
 
     def __init__(self, caminho_arquivo: str = None):
-        """
-        Inicializa o handler do Excel.
 
-        Args:
-            caminho_arquivo: Caminho do arquivo Excel (opcional)
-        """
         self.caminho_arquivo = caminho_arquivo
         self.df = None
         self.dados_carregados = False
 
     def carregar_arquivo(self, caminho: str) -> Tuple[bool, str]:
-        """
-        Carrega o arquivo Excel e valida sua estrutura.
 
-        Args:
-            caminho: Caminho do arquivo Excel
-
-        Returns:
-            Tupla (sucesso, mensagem)
-        """
         try:
             # Carrega o arquivo
             self.df = pd.read_excel(caminho)
             self.caminho_arquivo = caminho
 
-            # Valida as colunas
-            if len(self.df.columns) != 33:
-                return False, f"Arquivo possui {len(self.df.columns)} colunas. Esperado: 33 colunas."
-
-            # Verifica se os nomes das colunas batem (ignorando diferenças de espaços)
-            colunas_arquivo = [col.strip() for col in self.df.columns]
+            # Valida as colunas (aceita 29 ou 33)
+            num_colunas = len(self.df.columns)
             colunas_esperadas = [col.strip() for col in COLUNAS_EXCEL]
 
+            if num_colunas == 33:
+                # Planilha antiga (33 colunas) - remove as 4 do Boletim
+                colunas_remover = [
+                    "Nº de\nBOS", "Nº de\nVítimas",
+                    "Nº Laudo IML", "Nº do BO"
+                ]
+                colunas_remover_strip = [c.strip() for c in colunas_remover]
+                colunas_existentes = [col for col in self.df.columns
+                                      if col.strip() not in colunas_remover_strip]
+                self.df = self.df[colunas_existentes]
+
+            elif num_colunas != 29:
+                return False, f"Arquivo possui {num_colunas} colunas. Esperado: 29 ou 33 colunas."
+
+            # Verifica se os nomes das colunas batem
+            colunas_arquivo = [col.strip() for col in self.df.columns]
+
             if colunas_arquivo != colunas_esperadas:
-                return False, "Estrutura de colunas do arquivo não corresponde ao esperado."
+                return False, "Estrutura de colunas do arquivo nao corresponde ao esperado."
 
             self.dados_carregados = True
             total_registros = len(self.df)
@@ -61,12 +60,7 @@ class ExcelHandler:
             return False, f"Erro ao carregar arquivo: {str(e)}"
 
     def obter_info_arquivo(self) -> dict:
-        """
-        Retorna informações sobre o arquivo carregado.
 
-        Returns:
-            Dicionário com informações do arquivo
-        """
         if not self.dados_carregados or self.df is None:
             return {
                 'total_registros': 0,
@@ -89,15 +83,7 @@ class ExcelHandler:
         }
 
     def inserir_registro(self, dados: dict) -> Tuple[bool, str, int]:
-        """
-        Insere um novo registro na planilha, ordenado por Data do Fato.
 
-        Args:
-            dados: Dicionário com os dados do novo registro
-
-        Returns:
-            Tupla (sucesso, mensagem, posicao_inserida)
-        """
         if not self.dados_carregados:
             return False, "Nenhum arquivo carregado.", -1
 
@@ -128,15 +114,7 @@ class ExcelHandler:
             return False, f"Erro ao inserir registro: {str(e)}", -1
 
     def salvar_arquivo(self, caminho_destino: str = None) -> Tuple[bool, str]:
-        """
-        Salva o DataFrame em um arquivo Excel preservando a formatação original.
 
-        Args:
-            caminho_destino: Caminho para salvar (se None, usa o arquivo original)
-
-        Returns:
-            Tupla (sucesso, mensagem)
-        """
         if not self.dados_carregados:
             return False, "Nenhum dado para salvar."
 
@@ -159,7 +137,7 @@ class ExcelHandler:
             ws_novo = wb_novo.active
 
             # Copia formatação das colunas
-            for col_idx in range(1, 34):  # 33 colunas
+            for col_idx in range(1, len(self.df.columns) + 1):
                 # Copia largura da coluna
                 col_letter_original = ws_original.cell(1, col_idx).column_letter
                 col_letter_novo = ws_novo.cell(1, col_idx).column_letter
@@ -216,12 +194,7 @@ class ExcelHandler:
             return False, f"Erro ao salvar arquivo: {str(e)}"
 
     def _formatar_colunas_data(self, ws):
-        """
-        Formata colunas de data com o formato correto.
 
-        Args:
-            ws: Worksheet do openpyxl
-        """
         # Mapeia colunas que contêm datas
         colunas_data = {
             'Data do Óbito': 'DD/MM/YYYY',
@@ -244,24 +217,11 @@ class ExcelHandler:
                         ws.column_dimensions[col_letter].width = 12
 
     def obter_dataframe(self) -> Optional[pd.DataFrame]:
-        """
-        Retorna o DataFrame atual.
-
-        Returns:
-            DataFrame ou None se não houver dados
-        """
+  
         return self.df if self.dados_carregados else None
 
     def obter_valores_unicos(self, coluna: str) -> list:
-        """
-        Retorna valores únicos de uma coluna específica.
-
-        Args:
-            coluna: Nome da coluna
-
-        Returns:
-            Lista de valores únicos ordenados
-        """
+  
         if not self.dados_carregados or coluna not in self.df.columns:
             return []
 
@@ -269,12 +229,7 @@ class ExcelHandler:
         return sorted(valores)
 
     def obter_ultimo_registro(self) -> Optional[dict]:
-        """
-        Retorna o último registro inserido.
-
-        Returns:
-            Dicionário com os dados ou None
-        """
+    
         if not self.dados_carregados or self.df is None or len(self.df) == 0:
             return None
 

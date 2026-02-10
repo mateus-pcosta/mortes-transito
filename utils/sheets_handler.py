@@ -10,13 +10,6 @@ from .calculos import parse_data_excel
 class SheetsHandler:
 
     def __init__(self, credentials_path: str = None, spreadsheet_url: str = None):
-        """
-        Inicializa o handler do Google Sheets.
-
-        Args:
-            credentials_path: Caminho para o arquivo JSON de credenciais
-            spreadsheet_url: URL da planilha do Google Sheets
-        """
         self.credentials_path = credentials_path
         self.spreadsheet_url = spreadsheet_url
         self.caminho_arquivo = spreadsheet_url  # Alias para compatibilidade com ExcelHandler
@@ -29,12 +22,6 @@ class SheetsHandler:
         self.ano_atual = None  # Ano da aba atualmente carregada
 
     def autenticar(self) -> Tuple[bool, str]:
-        """
-        Autentica com a API do Google Sheets.
-
-        Returns:
-            Tupla (sucesso, mensagem)
-        """
         try:
             # Define os escopos necessários
             scopes = [
@@ -59,15 +46,6 @@ class SheetsHandler:
             return False, f"Erro na autenticação: {str(e)}"
 
     def carregar_planilha(self, spreadsheet_url: str = None) -> Tuple[bool, str]:
-        """
-        Carrega a planilha do Google Sheets e todas as abas de anos (2024, 2025, 2026).
-
-        Args:
-            spreadsheet_url: URL da planilha (se None, usa a URL do construtor)
-
-        Returns:
-            Tupla (sucesso, mensagem)
-        """
         if spreadsheet_url:
             self.spreadsheet_url = spreadsheet_url
 
@@ -154,22 +132,10 @@ class SheetsHandler:
             return False, f"Erro ao carregar planilha: {str(e)}"
 
     def obter_info_arquivo(self) -> dict:
-        """
-        Retorna informações sobre a planilha carregada.
-        Alias para obter_info_planilha() para compatibilidade com ExcelHandler.
 
-        Returns:
-            Dicionário com informações da planilha
-        """
         return self.obter_info_planilha()
 
     def obter_info_planilha(self) -> dict:
-        """
-        Retorna informações sobre a planilha carregada.
-
-        Returns:
-            Dicionário com informações da planilha
-        """
         if not self.dados_carregados or self.df is None:
             return {
                 'total_registros': 0,
@@ -194,15 +160,6 @@ class SheetsHandler:
         }
 
     def inserir_registro(self, dados: dict) -> Tuple[bool, str, int]:
-        """
-        Insere um novo registro na planilha correta baseado no ano da Data do Fato.
-
-        Args:
-            dados: Dicionário com os dados do novo registro
-
-        Returns:
-            Tupla (sucesso, mensagem, posicao_inserida)
-        """
         if not self.dados_carregados:
             return False, "Nenhuma planilha carregada.", -1
 
@@ -263,10 +220,6 @@ class SheetsHandler:
             return False, f"Erro ao inserir registro: {str(e)}", -1
 
     def _normalizar_datas_dataframe(self):
-        """
-        Normaliza todas as datas no DataFrame para o formato dd/mm/yyyy.
-        Detecta e corrige datas em formatos variados (yyyy-mm-dd, mm/dd/yyyy, etc).
-        """
         import re
 
         # Se DataFrame vazio, não faz nada
@@ -329,15 +282,6 @@ class SheetsHandler:
                     self.df.at[idx, coluna] = data_normalizada
 
     def _formatar_dados_para_sheets(self, dados: dict) -> dict:
-        """
-        Formata os dados para o formato do Google Sheets (strings).
-
-        Args:
-            dados: Dicionário com dados originais
-
-        Returns:
-            Dicionário formatado
-        """
         dados_formatados = {}
 
         for coluna, valor in dados.items():
@@ -359,12 +303,6 @@ class SheetsHandler:
         return dados_formatados
 
     def _atualizar_sheets(self) -> bool:
-        """
-        Atualiza o Google Sheets com os dados do DataFrame.
-
-        Returns:
-            True se sucesso, False caso contrário
-        """
         try:
             # Limpa a planilha
             self.worksheet.clear()
@@ -399,15 +337,6 @@ class SheetsHandler:
             return False
 
     def _encontrar_posicao_registro(self, dados: dict) -> int:
-        """
-        Encontra a posição de um registro no DataFrame.
-
-        Args:
-            dados: Dados do registro
-
-        Returns:
-            Posição (linha) do registro
-        """
         try:
             for idx, row in self.df.iterrows():
                 if (row['Vítima'] == dados.get('Vítima') and
@@ -418,15 +347,6 @@ class SheetsHandler:
             return -1
 
     def obter_valores_unicos(self, coluna: str) -> list:
-        """
-        Retorna valores únicos de uma coluna específica.
-
-        Args:
-            coluna: Nome da coluna
-
-        Returns:
-            Lista de valores únicos ordenados
-        """
         if not self.dados_carregados or coluna not in self.df.columns:
             return []
 
@@ -434,24 +354,9 @@ class SheetsHandler:
         return sorted([v for v in valores if v != ''])
 
     def obter_dataframe(self) -> Optional[pd.DataFrame]:
-        """
-        Retorna o DataFrame atual.
-
-        Returns:
-            DataFrame ou None se não houver dados
-        """
         return self.df if self.dados_carregados else None
 
     def _extrair_ano_data(self, data_str: str) -> Optional[str]:
-        """
-        Extrai o ano de uma string de data no formato dd/mm/yyyy.
-
-        Args:
-            data_str: String de data no formato dd/mm/yyyy
-
-        Returns:
-            Ano como string ou None se não conseguir extrair
-        """
         try:
             if not data_str or data_str.strip() == '':
                 return None
@@ -467,12 +372,7 @@ class SheetsHandler:
             return None
 
     def _carregar_aba_ano(self, ano: str):
-        """
-        Carrega os dados de uma aba específica de ano.
 
-        Args:
-            ano: Ano da aba a ser carregada (ex: '2024', '2025', '2026')
-        """
         if ano not in self.worksheets_por_ano:
             raise ValueError(f"Aba para o ano {ano} não encontrada.")
 

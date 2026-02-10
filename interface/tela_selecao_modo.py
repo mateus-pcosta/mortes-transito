@@ -9,7 +9,6 @@ from utils.dados_estaticos import COLORS
 
 
 class TelaSelecaoModo(QWidget):
-    """Tela inicial para escolher entre Excel local ou Google Sheets."""
 
     # Signals
     modo_excel_selecionado = pyqtSignal(object)  # Emite ExcelHandler
@@ -20,7 +19,6 @@ class TelaSelecaoModo(QWidget):
         self.init_ui()
 
     def init_ui(self):
-        """Inicializa a interface da tela."""
         layout = QVBoxLayout()
         layout.setSpacing(30)
         layout.setContentsMargins(50, 40, 50, 40)
@@ -104,7 +102,6 @@ class TelaSelecaoModo(QWidget):
         """)
 
     def selecionar_excel(self):
-        """Abre dialog para selecionar arquivo Excel."""
         arquivo, _ = QFileDialog.getOpenFileName(
             self,
             "Selecionar Planilha Excel",
@@ -116,7 +113,6 @@ class TelaSelecaoModo(QWidget):
             self.carregar_excel(arquivo)
 
     def carregar_excel(self, caminho: str):
-        """Carrega arquivo Excel."""
         handler = ExcelHandler()
         sucesso, mensagem = handler.carregar_arquivo(caminho)
 
@@ -131,14 +127,12 @@ class TelaSelecaoModo(QWidget):
             msg_box.exec()
 
     def conectar_sheets(self):
-        """Abre dialog para conectar ao Google Sheets."""
         dialog = DialogSheetsConfig(self)
         if dialog.exec() == QDialog.DialogCode.Accepted:
             credentials_path, spreadsheet_url = dialog.get_dados()
             self.carregar_sheets(credentials_path, spreadsheet_url)
 
     def carregar_sheets(self, credentials_path: str, spreadsheet_url: str):
-        """Conecta ao Google Sheets."""
         # Mostra mensagem de carregamento
         from PyQt6.QtWidgets import QProgressDialog
         from PyQt6.QtCore import Qt
@@ -198,7 +192,6 @@ class TelaSelecaoModo(QWidget):
 
 
 class DialogSheetsConfig(QDialog):
-    """Dialog para configurar conexão com Google Sheets."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -207,7 +200,6 @@ class DialogSheetsConfig(QDialog):
         self.init_ui()
 
     def init_ui(self):
-        """Inicializa a interface do dialog."""
         layout = QVBoxLayout()
 
         # Título
@@ -287,7 +279,7 @@ class DialogSheetsConfig(QDialog):
         """)
 
     def carregar_config_salva(self):
-        """Carrega configuração do arquivo config_sheets.txt."""
+
         import os
         config_path = "config_sheets.txt"
 
@@ -341,7 +333,6 @@ class DialogSheetsConfig(QDialog):
             msg_box.exec()
 
     def procurar_credentials(self):
-        """Abre dialog para selecionar arquivo de credenciais."""
         arquivo, _ = QFileDialog.getOpenFileName(
             self,
             "Selecionar Arquivo de Credenciais",
@@ -352,14 +343,12 @@ class DialogSheetsConfig(QDialog):
             self.input_credentials.setText(arquivo)
 
     def get_dados(self) -> tuple:
-        """Retorna os dados inseridos."""
         return (
             self.input_credentials.text().strip(),
             self.input_url.text().strip()
         )
 
     def accept(self):
-        """Valida antes de aceitar."""
         if not self.input_credentials.text().strip():
             msg_box = QMessageBox(self)
             msg_box.setIcon(QMessageBox.Icon.Warning)

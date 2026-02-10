@@ -1,7 +1,6 @@
-# Nomes das colunas do Excel (exatamente como aparecem na planilha)
 COLUNAS_EXCEL = [
+    "Natureza da Ocorrência",
     "Tipo de Acidente",
-    "Nº Laudo IML",
     "Natureza do Laudo",
     "Data do Óbito",
     "Vítima",
@@ -31,7 +30,6 @@ COLUNAS_EXCEL = [
     "OBS:"
 ]
 
-# Tipos de Acidente
 TIPO_ACIDENTE = [
     "Atropelamento",
     "Atropelamento com Animais",
@@ -45,7 +43,6 @@ TIPO_ACIDENTE = [
     "Outro"
 ]
 
-# Natureza do Laudo
 NATUREZA_LAUDO = [
     "Exame cadavérico - Acidente de Tráfego",
     "Exame cadavérico - Outros",
@@ -56,40 +53,34 @@ NATUREZA_LAUDO = [
     "Outro"
 ]
 
-# Sexo
 SEXO = [
     "Masculino",
     "Feminino"
 ]
 
-# Possui CNH
 POSSUI_CNH = [
     "Sim",
     "Não",
     "NI"
 ]
 
-# Condutor
 CONDUTOR = [
     "Sim",
     "Não",
     "NI"
 ]
 
-# Realizado Exame Alcoolemia
 EXAME_ALCOOLEMIA = [
     "Sim",
     "NI"
 ]
 
-# Estava usando Capacete
 USANDO_CAPACETE = [
     "Sim",
     "Não",
     "NI"
 ]
 
-# Subtipo do Local
 SUBTIPO_LOCAL = [
     "Rua",
     "Avenida",
@@ -105,7 +96,6 @@ SUBTIPO_LOCAL = [
     "Outro"
 ]
 
-# Veículos (para Vítima e Envolvido)
 VEICULOS_VITIMA = [
     "Motocicleta",
     "Carro/Automóvel",
@@ -144,7 +134,6 @@ VEICULOS_ENVOLVIDO = [
     "NI"
 ]
 
-# Região
 REGIAO = [
     "Capital",
     "Metropolitana",
@@ -153,7 +142,6 @@ REGIAO = [
     "NI"
 ]
 
-# Dias da Semana (em maiúsculas como na planilha)
 DIAS_SEMANA = [
     "SEGUNDA-FEIRA",
     "TERÇA-FEIRA",
@@ -164,7 +152,6 @@ DIAS_SEMANA = [
     "DOMINGO"
 ]
 
-# Meses (em maiúsculas como na planilha)
 MESES = [
     "JANEIRO",
     "FEVEREIRO",
@@ -180,20 +167,18 @@ MESES = [
     "DEZEMBRO"
 ]
 
-# Paleta de Cores para a interface
 COLORS = {
-    'primary': '#2C3E50',      # Azul escuro
-    'secondary': '#3498DB',    # Azul claro
-    'success': '#27AE60',      # Verde
-    'warning': '#F39C12',      # Amarelo
-    'danger': '#E74C3C',       # Vermelho
-    'info': '#95A5A6',         # Cinza
-    'background': '#ECF0F1',   # Cinza claro
-    'text': '#2C3E50',         # Texto escuro
-    'auto_field': '#BDC3C7'    # Campos automáticos (read-only)
+    'primary': '#2C3E50',     
+    'secondary': '#3498DB',   
+    'success': '#27AE60',      
+    'warning': '#F39C12',      
+    'danger': '#E74C3C',       
+    'info': '#95A5A6',         
+    'background': '#ECF0F1',  
+    'text': '#2C3E50',        
+    'auto_field': '#BDC3C7'    
 }
 
-# Mensagens de erro
 ERROS = {
     'arquivo_invalido': "Arquivo Excel inválido. Verifique se contém as 29 colunas necessárias.",
     'data_futura': "Data não pode ser futura.",
@@ -208,10 +193,7 @@ ERROS = {
 
 
 def carregar_dados_da_planilha(caminho_excel):
-    """
-    Carrega dados unicos da planilha existente para popular os comboboxes.
-    Retorna dicionario com listas de valores unicos.
-    """
+
     import pandas as pd
 
     try:
@@ -219,6 +201,7 @@ def carregar_dados_da_planilha(caminho_excel):
 
         dados = {
             'municipios': sorted(df['Município do Fato'].dropna().unique().tolist()),
+            'natureza_ocorrencia': sorted(df['Natureza da Ocorrência'].dropna().unique().tolist()),
             'locais_morte': sorted(df['Local da Morte'].dropna().unique().tolist()),
             'territorios': sorted(df['Território de\nDesenvolvimento'].dropna().unique().tolist())
         }
@@ -228,6 +211,7 @@ def carregar_dados_da_planilha(caminho_excel):
         print(f"Erro ao carregar dados da planilha: {e}")
         return {
             'municipios': [],
+            'natureza_ocorrencia': [],
             'locais_morte': [],
             'territorios': []
         }

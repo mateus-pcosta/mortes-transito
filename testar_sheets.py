@@ -11,23 +11,23 @@ CREDENTIALS_PATH = r"c:\Users\mateu\Desktop\Trabalho-SSP\Tela de Registro\mortes
 SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1QfHHUbFhdLeMX41zEzY5IMCBpLkx9zzCCgsa_mnOasg/edit?usp=sharing"
 
 print("=" * 60)
-print("TESTE DE CONEXÃO - GOOGLE SHEETS")
+print("TESTE DE CONEXAO - GOOGLE SHEETS")
 print("=" * 60)
 print()
 
 # Cria o handler
 print("1. Criando handler...")
 handler = SheetsHandler(CREDENTIALS_PATH, SPREADSHEET_URL)
-print("   ✅ Handler criado")
+print("   Handler criado")
 print()
 
 # Autentica
 print("2. Autenticando com Google...")
 sucesso_auth, msg_auth = handler.autenticar()
 if sucesso_auth:
-    print(f"   ✅ {msg_auth}")
+    print(f"   OK - {msg_auth}")
 else:
-    print(f"   ❌ ERRO: {msg_auth}")
+    print(f"   ERRO: {msg_auth}")
     exit(1)
 print()
 
@@ -35,26 +35,26 @@ print()
 print("3. Carregando planilha...")
 sucesso_load, msg_load = handler.carregar_planilha()
 if sucesso_load:
-    print(f"   ✅ {msg_load}")
+    print(f"   OK - {msg_load}")
 else:
-    print(f"   ❌ ERRO: {msg_load}")
+    print(f"   ERRO: {msg_load}")
     exit(1)
 print()
 
 # Mostra informações
-print("4. Informações da planilha:")
+print("4. Informacoes da planilha:")
 info = handler.obter_info_planilha()
-print(f"   📊 Nome: {info['nome_planilha']}")
-print(f"   📈 Total de registros: {info['total_registros']}")
-print(f"   🏙️  Municípios únicos: {info['municipios_unicos']}")
+print(f"   Nome: {info['nome_planilha']}")
+print(f"   Total de registros: {info['total_registros']}")
+print(f"   Municipios unicos: {info['municipios_unicos']}")
 if info['ultima_data']:
-    print(f"   📅 Última data: {info['ultima_data'].strftime('%d/%m/%Y')}")
+    print(f"   Ultima data: {info['ultima_data'].strftime('%d/%m/%Y')}")
 print()
 
 print("=" * 60)
-print("TESTE CONCLUÍDO COM SUCESSO! ✅")
+print("TESTE CONCLUIDO COM SUCESSO!")
 print("=" * 60)
 print()
-print("Você pode usar o sistema normalmente agora!")
+print("Voce pode usar o sistema normalmente agora!")
 print("Execute: python main.py")
 print()

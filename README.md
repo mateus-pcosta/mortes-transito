@@ -38,14 +38,14 @@ Aplicacao desktop em Python com PyQt6 para cadastrar mortes no transito, com sup
 
 ### 1. Clone o projeto
 
-```bash
+```powershell
 git clone https://github.com/mateus-pcosta/mortes-transito.git
 cd mortes-transito
 ```
 
 ### 2. Instale as dependencias
 
-```bash
+```powershell
 pip install -r requirements.txt
 ```
 
@@ -59,8 +59,8 @@ pip install -r requirements.txt
 
 ### 3. Configure o banco de dados MySQL
 
-```bash
-mysql -u root -p < setup_database.sql
+```powershell
+Get-Content setup_database.sql | mysql -u root -p
 ```
 
 Isso cria o banco `mortes_transito` com todas as tabelas e dados iniciais.
@@ -69,17 +69,57 @@ Isso cria o banco `mortes_transito` com todas as tabelas e dados iniciais.
 
 Copie o exemplo e preencha com suas credenciais:
 
-```bash
-cp .env.example .env
+```powershell
+Copy-Item .env.example .env
 ```
 
 Edite o `.env` com seus dados de acesso ao MySQL.
+
+## Planilha Excel
+
+O projeto inclui o arquivo `planilha_mortes_transito.xlsx` com as 29 colunas ja configuradas, pronto para uso.
+
+O sistema tambem aceita planilhas com 33 colunas (formato antigo). Nesse caso, as 4 colunas extras (N de BOS, N de Vitimas, N Laudo IML, N do BO) sao removidas automaticamente ao carregar.
+
+### Colunas da planilha (29)
+
+| # | Coluna |
+|---|--------|
+| 1 | Natureza da Ocorrencia |
+| 2 | Tipo de Acidente |
+| 3 | Natureza do Laudo |
+| 4 | Data do Obito |
+| 5 | Vitima |
+| 6 | Sexo |
+| 7 | Filiacao |
+| 8 | Data de Nascimento |
+| 9 | Idade |
+| 10 | CPF |
+| 11 | Possui CNH |
+| 12 | Condutor |
+| 13 | Realizado Exame Alcoolemia |
+| 14 | Estava usando Capacete |
+| 15 | Municipio do Fato |
+| 16 | Logradouro |
+| 17 | Subtipo do Local |
+| 18 | Lat |
+| 19 | Long |
+| 20 | Data do Fato |
+| 21 | Hora do fato |
+| 22 | Dia da Semana |
+| 23 | Mes |
+| 24 | Local da Morte |
+| 25 | Veiculo Vitima Ou Outros |
+| 26 | Veiculo Envolvido Ou Outros |
+| 27 | Regiao |
+| 28 | Territorio de Desenvolvimento |
+| 29 | OBS: |
 
 ## Como Usar
 
 ### Execute a aplicacao
 
-```bash
+```powershell
 python main.py
 ```
 
@@ -103,8 +143,8 @@ Na tela inicial, escolha entre:
 
 O formulario esta organizado em 7 abas:
 
-- **Boletim** - Tipo de Acidente (demais campos desativados)
-- **Laudo** - Informacoes do Laudo IML
+- **Boletim** - Natureza da Ocorrencia e Tipo de Acidente (demais campos desativados)
+- **Laudo** - Natureza do Laudo (N Laudo IML desativado)
 - **Vitima** - Dados da Vitima
 - **Localizacao** - Localizacao do Acidente
 - **Data e Hora** - Data e Hora do Fato
@@ -113,24 +153,9 @@ O formulario esta organizado em 7 abas:
 
 ## Banco de Dados MySQL
 
-### Estrutura
+O banco `mortes_transito` possui 6 tabelas com chaves primarias e estrangeiras:
 
-O banco `mortes_transito` possui 5 tabelas:
-
-- **ocorrencias** - Dados do fato (data, hora, local, tipo de acidente)
-- **vitimas** - Dados da vitima (nome, idade, CPF, laudo)
-- **tipos_acidente** - Lookup de tipos de acidente (10 opcoes)
-- **tipos_veiculo** - Lookup de tipos de veiculo (18 opcoes)
-- **municipios** - Lookup de municipios
-
-### Diagrama simplificado
-
-```
-ocorrencias (1) ----< (N) vitimas
-     |                        |
-     |-> tipos_acidente       |-> tipos_veiculo (vitima)
-     |-> municipios           |-> tipos_veiculo (envolvido)
-```
+![Diagrama do Banco de Dados](diagrama-mortes-no-transito.png)
 
 ## Campos Calculados Automaticamente
 
@@ -140,12 +165,13 @@ ocorrencias (1) ----< (N) vitimas
 
 ## Campos Obrigatorios
 
-1. Tipo de Acidente
-2. Data do Obito
-3. Vitima (Nome Completo)
-4. Sexo
-5. Municipio do Fato
-6. Data do Fato
+1. Natureza da Ocorrencia
+2. Tipo de Acidente
+3. Data do Obito
+4. Vitima (Nome Completo)
+5. Sexo
+6. Municipio do Fato
+7. Data do Fato
 
 ## Estrutura do Projeto
 
@@ -155,6 +181,7 @@ projeto/
 |-- main.py                       # Inicializacao
 |-- requirements.txt              # Dependencias
 |-- setup_database.sql            # Script de criacao do MySQL
+|-- planilha_mortes_transito.xlsx # Planilha modelo (29 colunas)
 |-- README.md                     # Este arquivo
 |-- .env.example                  # Template de variaveis de ambiente
 |-- .gitignore                    # Arquivos ignorados pelo git
@@ -191,6 +218,6 @@ Para usar o modo Google Sheets:
 
 ---
 
-**Versao**: 3.1 (Publica)
+**Versao**: 3.2 (Publica)
 **Ultima atualizacao**: Fevereiro 2026
 **Desenvolvido com**: Python 3, PyQt6, pandas, openpyxl, gspread, MySQL

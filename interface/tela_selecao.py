@@ -17,7 +17,6 @@ class TelaSelecao(QWidget):
         self.init_ui()
 
     def init_ui(self):
-        """Inicializa a interface da tela."""
         layout = QVBoxLayout()
         layout.setSpacing(20)
         layout.setContentsMargins(50, 30, 50, 30)
@@ -141,7 +140,6 @@ class TelaSelecao(QWidget):
         """)
 
     def selecionar_arquivo(self):
-        """Abre dialog para selecionar arquivo Excel."""
         arquivo, _ = QFileDialog.getOpenFileName(
             self,
             "Selecionar Planilha Excel",
@@ -153,12 +151,6 @@ class TelaSelecao(QWidget):
             self.carregar_arquivo(arquivo)
 
     def carregar_arquivo(self, caminho: str):
-        """
-        Carrega e valida o arquivo Excel selecionado.
-
-        Args:
-            caminho: Caminho do arquivo
-        """
         # Cria handler e tenta carregar
         self.excel_handler = ExcelHandler()
         sucesso, mensagem = self.excel_handler.carregar_arquivo(caminho)
@@ -211,6 +203,5 @@ class TelaSelecao(QWidget):
             self.excel_handler = None
 
     def continuar(self):
-        """Emite signal para continuar para a próxima tela."""
         if self.excel_handler and self.excel_handler.dados_carregados:
             self.arquivo_selecionado.emit(self.excel_handler)

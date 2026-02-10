@@ -198,7 +198,7 @@ class TelaCadastro(QWidget):
             }}
         """
 
-    # ==================== ABA 1: BOLETIM (CAMPOS BLOQUEADOS) ====================
+    # ABA 1: BOLETIM (CAMPOS BLOQUEADOS)
 
     def criar_aba_boletim(self):
         widget = QWidget()
@@ -217,8 +217,7 @@ class TelaCadastro(QWidget):
             }}
         """
 
-        aviso = QLabel("Os campos abaixo estao desativados nesta versao. "
-                       "Apenas o Tipo de Acidente esta disponivel.")
+        aviso = QLabel("Alguns campos estao desativados nesta versao.")
         aviso.setStyleSheet("color: #7F8C8D; font-size: 10px; font-style: italic;")
         aviso.setWordWrap(True)
         layout.addRow("", aviso)
@@ -238,11 +237,10 @@ class TelaCadastro(QWidget):
         self.campos['n_vitimas'].setStyleSheet(estilo_bloqueado)
         layout.addRow(self.criar_campo_label("N de Vitimas"), self.campos['n_vitimas'])
 
-        # Natureza da Ocorrencia (bloqueado)
+        # Natureza da Ocorrencia (ATIVO - obrigatorio)
         self.campos['natureza_ocorrencia'] = QComboBox()
-        self.campos['natureza_ocorrencia'].setEnabled(False)
-        self.campos['natureza_ocorrencia'].setStyleSheet(estilo_bloqueado)
-        layout.addRow(self.criar_campo_label("Natureza da Ocorrencia"),
+        self.campos['natureza_ocorrencia'].setEditable(True)
+        layout.addRow(self.criar_campo_label("Natureza da Ocorrencia", True),
                      self.campos['natureza_ocorrencia'])
 
         # N do BO (bloqueado)
@@ -251,7 +249,7 @@ class TelaCadastro(QWidget):
         self.campos['n_bo'].setStyleSheet(estilo_bloqueado)
         layout.addRow(self.criar_campo_label("N do BO"), self.campos['n_bo'])
 
-        # Tipo de Acidente (UNICO CAMPO ATIVO - obrigatorio)
+        # Tipo de Acidente (ATIVO - obrigatorio)
         self.campos['tipo_acidente'] = QComboBox()
         self.campos['tipo_acidente'].addItems(TIPO_ACIDENTE)
         layout.addRow(self.criar_campo_label("Tipo de Acidente", True),
@@ -261,7 +259,7 @@ class TelaCadastro(QWidget):
         scroll.setWidget(widget)
         self.tabs.addTab(scroll, "Boletim")
 
-    # ==================== ABA 2: LAUDO ====================
+    # ABA 2: LAUDO
 
     def criar_aba_laudo(self):
         widget = QWidget()
@@ -270,8 +268,18 @@ class TelaCadastro(QWidget):
         layout.setSpacing(15)
         layout.setContentsMargins(20, 20, 20, 20)
 
+        estilo_bloqueado = f"""
+            QLineEdit {{
+                background-color: {COLORS['auto_field']};
+                color: #7F8C8D;
+                font-style: italic;
+                border: 1px solid #95A5A6;
+                padding: 5px;
+            }}
+        """
         self.campos['n_laudo'] = QLineEdit()
-        self.campos['n_laudo'].setPlaceholderText("Numero do laudo")
+        self.campos['n_laudo'].setEnabled(False)
+        self.campos['n_laudo'].setStyleSheet(estilo_bloqueado)
         layout.addRow(self.criar_campo_label("N Laudo IML"), self.campos['n_laudo'])
 
         self.campos['natureza_laudo'] = QComboBox()
@@ -291,7 +299,7 @@ class TelaCadastro(QWidget):
         scroll.setWidget(widget)
         self.tabs.addTab(scroll, "Laudo")
 
-    # ==================== ABA 3: VITIMA ====================
+    # ABA 3: VITIMA
 
     def criar_aba_vitima(self):
         widget = QWidget()
@@ -355,7 +363,7 @@ class TelaCadastro(QWidget):
         scroll.setWidget(widget)
         self.tabs.addTab(scroll, "Vitima")
 
-    # ==================== ABA 4: LOCALIZACAO ====================
+    # ABA 4: LOCALIZACAO
 
     def criar_aba_localizacao(self):
         widget = QWidget()
@@ -397,7 +405,7 @@ class TelaCadastro(QWidget):
         scroll.setWidget(widget)
         self.tabs.addTab(scroll, "Localizacao")
 
-    # ==================== ABA 5: DATA E HORA ====================
+    # ABA 5: DATA E HORA
 
     def criar_aba_data_hora(self):
         widget = QWidget()
@@ -436,7 +444,7 @@ class TelaCadastro(QWidget):
         scroll.setWidget(widget)
         self.tabs.addTab(scroll, "Data e Hora")
 
-    # ==================== ABA 6: VEICULOS ====================
+    # ABA 6: VEICULOS
 
     def criar_aba_veiculos(self):
         widget = QWidget()
@@ -464,7 +472,7 @@ class TelaCadastro(QWidget):
         scroll.setWidget(widget)
         self.tabs.addTab(scroll, "Veiculos")
 
-    # ==================== ABA 7: TERRITORIAL ====================
+    # ABA 7: TERRITORIAL
 
     def criar_aba_territorial(self):
         widget = QWidget()
@@ -491,17 +499,21 @@ class TelaCadastro(QWidget):
         scroll.setWidget(widget)
         self.tabs.addTab(scroll, "Territorial")
 
-    # ==================== METODOS AUXILIARES ====================
+    # METODOS AUXILIARES
 
     def carregar_dados_dinamicos(self):
         self.dados_dinamicos = {
             'municipios': self.excel_handler.obter_valores_unicos('Município do Fato'),
+            'natureza_ocorrencia': self.excel_handler.obter_valores_unicos('Natureza da Ocorrência'),
             'locais_morte': self.excel_handler.obter_valores_unicos('Local da Morte'),
             'territorios': self.excel_handler.obter_valores_unicos('Território de\nDesenvolvimento')
         }
 
         if self.dados_dinamicos['municipios']:
             self.campos['municipio'].addItems(self.dados_dinamicos['municipios'])
+
+        if self.dados_dinamicos['natureza_ocorrencia']:
+            self.campos['natureza_ocorrencia'].addItems(self.dados_dinamicos['natureza_ocorrencia'])
 
         if self.dados_dinamicos['locais_morte']:
             self.campos['local_morte'].addItems(self.dados_dinamicos['locais_morte'])
@@ -535,9 +547,9 @@ class TelaCadastro(QWidget):
     def obter_dados_formulario(self) -> dict:
         dados = {}
 
-        # Apenas campos ativos (29 colunas - sem os 4 bloqueados do Boletim)
+        # Apenas campos ativos 
+        dados['Natureza da Ocorrência'] = self.campos['natureza_ocorrencia'].currentText()
         dados['Tipo de Acidente'] = self.campos['tipo_acidente'].currentText()
-        dados['Nº Laudo IML'] = self.campos['n_laudo'].text()
         dados['Natureza do Laudo'] = self.campos['natureza_laudo'].currentText()
         dados['Data do Óbito'] = self.campos['data_obito'].date().toPyDate().strftime('%d/%m/%Y')
         dados['Vítima'] = self.campos['vitima'].text().strip().title()

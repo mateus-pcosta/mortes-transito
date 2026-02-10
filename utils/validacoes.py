@@ -36,15 +36,6 @@ def validar_cpf(cpf: str) -> bool:
 
 
 def validar_data_nao_futura(data: date) -> Tuple[bool, str]:
-    """
-    Valida se uma data não é futura.
-
-    Args:
-        data: Objeto date ou datetime
-
-    Returns:
-        Tupla (válido, mensagem_erro)
-    """
     hoje = datetime.now().date()
     if isinstance(data, datetime):
         data = data.date()
@@ -56,16 +47,6 @@ def validar_data_nao_futura(data: date) -> Tuple[bool, str]:
 
 
 def validar_data_nascimento(data_nascimento: date, data_obito: Optional[date] = None) -> Tuple[bool, str]:
-    """
-    Valida a data de nascimento.
-
-    Args:
-        data_nascimento: Data de nascimento
-        data_obito: Data do óbito (opcional, para comparação)
-
-    Returns:
-        Tupla (válido, mensagem_erro)
-    """
     hoje = datetime.now().date()
     if isinstance(data_nascimento, datetime):
         data_nascimento = data_nascimento.date()
@@ -91,16 +72,6 @@ def validar_data_nascimento(data_nascimento: date, data_obito: Optional[date] = 
 
 
 def validar_coordenadas(latitude: float, longitude: float) -> Tuple[bool, str]:
-    """
-    Valida coordenadas geográficas.
-
-    Args:
-        latitude: Valor da latitude
-        longitude: Valor da longitude
-
-    Returns:
-        Tupla (válido, mensagem_erro)
-    """
     if not (-90 <= latitude <= 90):
         return False, "Latitude deve estar entre -90 e 90."
 
@@ -111,15 +82,6 @@ def validar_coordenadas(latitude: float, longitude: float) -> Tuple[bool, str]:
 
 
 def validar_idade(idade: int) -> Tuple[bool, str]:
-    """
-    Valida o valor da idade.
-
-    Args:
-        idade: Valor da idade
-
-    Returns:
-        Tupla (válido, mensagem_erro)
-    """
     if idade < 0:
         return False, "Idade não pode ser negativa."
 
@@ -130,15 +92,6 @@ def validar_idade(idade: int) -> Tuple[bool, str]:
 
 
 def validar_campo_obrigatorio(valor: any) -> Tuple[bool, str]:
-    """
-    Valida se um campo obrigatório foi preenchido.
-
-    Args:
-        valor: Valor do campo
-
-    Returns:
-        Tupla (válido, mensagem_erro)
-    """
     if valor is None:
         return False, "Este campo é obrigatório."
 
@@ -149,15 +102,6 @@ def validar_campo_obrigatorio(valor: any) -> Tuple[bool, str]:
 
 
 def validar_n_bos(valor: str) -> Tuple[bool, str]:
-    """
-    Valida o campo Nº de BOS (deve estar vazio ou ser 1).
-
-    Args:
-        valor: Valor do campo Nº de BOS
-
-    Returns:
-        Tupla (válido, mensagem_erro)
-    """
     if valor.strip() == "":
         return True, ""  # Vazio é válido (vítima adicional)
 
@@ -172,16 +116,8 @@ def validar_n_bos(valor: str) -> Tuple[bool, str]:
 
 
 def campos_obrigatorios_preenchidos(dados: dict) -> Tuple[bool, list]:
-    """
-    Verifica se todos os campos obrigatórios foram preenchidos.
-
-    Args:
-        dados: Dicionário com os dados do formulário
-
-    Returns:
-        Tupla (todos_preenchidos, lista_campos_vazios)
-    """
     campos_obrigatorios = [
+        'Natureza da Ocorrência',
         'Tipo de Acidente',
         'Data do Óbito',
         'Vítima',
@@ -202,15 +138,7 @@ def campos_obrigatorios_preenchidos(dados: dict) -> Tuple[bool, list]:
 
 
 def formatar_cpf(cpf: str) -> str:
-    """
-    Formata um CPF no padrão XXX.XXX.XXX-XX.
 
-    Args:
-        cpf: String do CPF (apenas números)
-
-    Returns:
-        CPF formatado
-    """
     cpf = ''.join(filter(str.isdigit, cpf))
     if len(cpf) != 11:
         return cpf
